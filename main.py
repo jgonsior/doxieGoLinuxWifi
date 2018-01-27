@@ -1,5 +1,6 @@
 import requests
 from pprint import pprint
+import os
 
 DOXIE_IP = 'http://192.168.1.40:8080/'
 
@@ -20,6 +21,14 @@ print(jsonHelloResponse['name'] + " with ip " + jsonHelloResponse['ip'] +
 
 print("Listing existing scans…")
 
-response = requests.get(DOXIE_IP + 'scans/recent.json')
+scansResponse = requests.get(DOXIE_IP + 'scans.json')
 
-pprint(response.json())
+for scan in scansResponse.json():
+    print("Downloading " + os.path.basename(scan['name']))
+
+    downloadResponse = requests.get(
+        DOXIE_IP + 'scans' + scan['name'], stream=True)
+
+    with open(os.path.basename(scan['name']), 'wb') as saveLocation:
+        for chunk in downloadResponse.iter_content(chunk_size=128):
+            saveLocation.write(chunk)
