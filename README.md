@@ -1,5 +1,5 @@
 # doxieGoLinuxWifi
-A python script to download scan from a Doxie Wifi Go
+A python script for downloading scans from a Doxie Wifi Go scanner.
 
 # Config
 You need to have the following config file in `~/.config/doxieGoLinuxWifi/config`:
