@@ -42,9 +42,11 @@ recentResponse = requests.get(
 if not os.path.isfile(cfgDir + "downloaded"):
     open(cfgDir + "downloaded", "a").close()
     lastScanName = ""
+    recentScanReached = True
 else:
     lastScanName = subprocess.getoutput(
         'cat ' + cfgDir + "downloaded | tail -1").split()[0]
+    recentScanReached = False
 
 if recentResponse.json()['path'] == ('/DOXIE/JPEG/' + str(lastScanName)):
     print("No new files today.")
@@ -53,10 +55,9 @@ else:
 
         scansResponse = requests.get(cfg['DEFAULT']['doxieIp'] + 'scans.json')
 
-        recentScanReached = False
-
         for scan in scansResponse.json():
-            saveLocation = os.path.basename(scan['name'])
+            saveLocation = os.path.expanduser(
+                cfg['DEFAULT']['downloadLocation']) + "/" + os.path.basename(scan['name'])
 
             if saveLocation == lastScanName:
                 recentScanReached = True
