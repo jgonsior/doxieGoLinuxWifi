@@ -4,6 +4,7 @@ import os
 import configparser
 from pprint import pprint
 from xdg import XDG_CONFIG_HOME
+import subprocess
 
 cfgDir = XDG_CONFIG_HOME + "/doxieGoLinuxWifi/"
 cfg = configparser.ConfigParser()
@@ -37,34 +38,40 @@ print("Checking for new scans…")
 recentResponse = requests.get(
     cfg['DEFAULT']['doxieIp'] + 'scans/recent.json')
 
-# make sure the "recent" file exists
-if not os.path.isfile(cfgDir + "recent"):
-    open(cfgDir + "recent", "a").close()
+# make sure the "downloaded" file exists
+if not os.path.isfile(cfgDir + "downloaded"):
+    open(cfgDir + "downloaded", "a").close()
+    lastScanName = ""
+else:
+    lastScanName = subprocess.getoutput(
+        'cat ' + cfgDir + "downloaded | tail -1").split()[0]
 
-with open(cfgDir + "recent", "r") as f:
-    recentFile = f.readline()
-
-
-if recentResponse.json()['path'] == recentFile:
+if recentResponse.json()['path'] == ('/DOXIE/JPEG/' + str(lastScanName)):
     print("No new files today.")
 else:
-    with open(cfgDir + "recent", "w") as f:
-        f.write(recentResponse.json()['path'])
+    with open(cfgDir + "downloaded", "a") as downloadedFile:
 
-    scansResponse = requests.get(cfg['DEFAULT']['doxieIp'] + 'scans.json')
+        scansResponse = requests.get(cfg['DEFAULT']['doxieIp'] + 'scans.json')
 
-    for scan in scansResponse.json():
-        print("Found ")
+        recentScanReached = False
 
-        saveLocation = os.path.basename(scan['name'])
-        print("Downloading " + saveLocation)
+        for scan in scansResponse.json():
+            saveLocation = os.path.basename(scan['name'])
 
-        downloadResponse = requests.get(
-            cfg['DEFAULT']['doxieIp'] + 'scans' + scan['name'], stream=True)
+            if saveLocation == lastScanName:
+                recentScanReached = True
+            else:
+                if recentScanReached:
+                    print("Downloading " + saveLocation)
 
-        with open(saveLocation, "wb") as f:
-            for chunk in downloadResponse.iter_content(chunk_size=128):
-                f.write(chunk)
+                    downloadResponse = requests.get(
+                        cfg['DEFAULT']['doxieIp'] + 'scans' + scan['name'], stream=True)
 
-            # color: -rgb -unpo "-no-blurfilter"
-            # b/w: -resolution 450
+                    with open(saveLocation, "wb") as f:
+                        for chunk in downloadResponse.iter_content(chunk_size=128):
+                            f.write(chunk)
+
+                        # color: -rgb -unpo "-no-blurfilter"
+                        # b/w: -resolution 450
+
+                    downloadedFile.write(saveLocation + "\n")
