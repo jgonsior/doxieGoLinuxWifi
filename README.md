@@ -2,8 +2,9 @@
 A python script for downloading scans from a Doxie Wifi Go scanner.
 
 # Installation
-You need to have [Pipenv](https://github.com/pypa/pipenv) installed.
-After that you just need to run `pipenv install` to install all needed dependencies and are then free to go.
+[Pipenv](https://github.com/pypa/pipenv) is requiered for dependency management.
+
+`pipenv install` should be sufficient to be able to execute the program with `python main.py`.
 
 # Config
 You need to have the following config file in `~/.config/doxieGoLinuxWifi/config`:
