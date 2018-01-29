@@ -1,10 +1,11 @@
 #!/usr/bin/python3
-import requests
-import os
 import configparser
-from pprint import pprint
-from xdg import XDG_CONFIG_HOME
+import os
 import subprocess
+from pprint import pprint
+
+import requests
+from xdg import XDG_CONFIG_HOME
 
 cfgDir = XDG_CONFIG_HOME + "/doxieGoLinuxWifi/"
 cfg = configparser.ConfigParser()
@@ -35,8 +36,7 @@ print(jsonHelloResponse['name'] + " with ip " + jsonHelloResponse['ip'] +
 
 print("Checking for new scans…")
 
-recentResponse = requests.get(
-    cfg['DEFAULT']['doxieIp'] + 'scans/recent.json')
+recentResponse = requests.get(cfg['DEFAULT']['doxieIp'] + 'scans/recent.json')
 
 # make sure the "downloaded" file exists
 if not os.path.isfile(cfgDir + "downloaded"):
@@ -57,7 +57,8 @@ else:
 
         for scan in scansResponse.json():
             saveLocation = os.path.expanduser(
-                cfg['DEFAULT']['downloadLocation']) + "/" + os.path.basename(scan['name'])
+                cfg['DEFAULT']['downloadLocation']) + "/" + os.path.basename(
+                    scan['name'])
 
             if saveLocation == lastScanName:
                 recentScanReached = True
@@ -66,10 +67,12 @@ else:
                     print("Downloading " + saveLocation)
 
                     downloadResponse = requests.get(
-                        cfg['DEFAULT']['doxieIp'] + 'scans' + scan['name'], stream=True)
+                        cfg['DEFAULT']['doxieIp'] + 'scans' + scan['name'],
+                        stream=True)
 
                     with open(saveLocation, "wb") as f:
-                        for chunk in downloadResponse.iter_content(chunk_size=128):
+                        for chunk in downloadResponse.iter_content(
+                                chunk_size=128):
                             f.write(chunk)
 
                         # color: -rgb -unpo "-no-blurfilter"
